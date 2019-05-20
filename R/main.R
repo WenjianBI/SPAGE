@@ -4,8 +4,7 @@
 #' @param obj.null output object of function SPAGE_Null_Model.
 #' @param Envn.mtx a numeric environment matrix with each row as an individual and each column as an environmental factor. Column names of environmental factors are required.
 #' @param Geno.mtx a numeric genotype matrix with each row as an individual and each column as a genetic variant.
-#' Column names of genetic variations are required. Given that A(a) is the major(minor) allele.
-#' Genotype should be coded as 0, 1, 2, and NA for AA, Aa, aa, and missing, respectively.
+#' Column names of genetic variations are required. Missng genotype should be coded as NA. Both hard-called and imputed genotype data are supported.
 #' @param Cutoff a numeric value (Default: 2) to specify the standard deviation cutoff to be used.
 #' If the test statistic lies within the standard deviation cutoff of the mean, its p value is calculated based on normal distribution approximation, otherwise, its p value is calculated based on saddlepoint approximation.
 #' @param impute.method a character string (default= "none") to specify the method to impute missing genotypes.
@@ -108,7 +107,7 @@ SPAGE = function(obj.null,
 #' SaddlePoint Approximation implementation of GxE analysis (One-SNP-version)
 #'
 #' One-SNP-version SPAGE function. This function is to facilitate users that prefer reading and analyzing genotype line-by-line.
-#' @param g a numeric genotype vector. Given that A(a) is the major(minor) allele, genotype should be coded as 0, 1, 2, and NA for AA, Aa, aa, and missing, respectively.
+#' @param g a numeric genotype vector. Missing genotype should be coded as NA. Both hard-called and imputed genotype data are supported.
 #' @param others the same as function SPAGE.
 #' @return the same as function SPAGE.
 #' @examples
