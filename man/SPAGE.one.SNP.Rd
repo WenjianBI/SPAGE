@@ -9,7 +9,7 @@ SPAGE.one.SNP(g, obj.null, Envn.mtx, Cutoff = 2,
   Firth.cutoff = 0, BetaG.cutoff = 0.001, BetaG.SPA = F)
 }
 \arguments{
-\item{g}{a numeric genotype vector. Given that A(a) is the major(minor) allele, genotype should be coded as 0, 1, 2, and NA for AA, Aa, aa, and missing, respectively.}
+\item{g}{a numeric genotype vector. Missing genotype should be coded as NA. Both hard-called and imputed genotype data are supported.}
 
 \item{others}{the same as function SPAGE.}
 }

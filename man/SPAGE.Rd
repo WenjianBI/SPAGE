@@ -14,8 +14,7 @@ SPAGE(obj.null, Envn.mtx, Geno.mtx, Cutoff = 2, impute.method = "none",
 \item{Envn.mtx}{a numeric environment matrix with each row as an individual and each column as an environmental factor. Column names of environmental factors are required.}
 
 \item{Geno.mtx}{a numeric genotype matrix with each row as an individual and each column as a genetic variant.
-Column names of genetic variations are required. Given that A(a) is the major(minor) allele.
-Genotype should be coded as 0, 1, 2, and NA for AA, Aa, aa, and missing, respectively.}
+Column names of genetic variations are required. Missng genotype should be coded as NA. Both hard-called and imputed genotype data are supported.}
 
 \item{Cutoff}{a numeric value (Default: 2) to specify the standard deviation cutoff to be used.
 If the test statistic lies within the standard deviation cutoff of the mean, its p value is calculated based on normal distribution approximation, otherwise, its p value is calculated based on saddlepoint approximation.}
