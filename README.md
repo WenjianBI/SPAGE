@@ -7,7 +7,7 @@ SaddlePoint Approximation implementation of GxE analysis
 library(devtools)  # author version: 2.0.1
 install_github("WenjianBi/SPAGE")
 library(SPAGE)
-?SPAGE  # manual of genetic association analyses in SPAGE package
+?SPAGE  # manual of GxE analyses in SPAGE package
 ```
 
 ### Reference
