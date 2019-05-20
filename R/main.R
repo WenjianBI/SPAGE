@@ -16,10 +16,11 @@
 #' @param Firth.cutoff a numeric value (default=0, no Firth output) to specify the p-value cutoff for Firth's test.
 #' Only when the SPA p-value less than the cutoff, Firth's test p-value is calculated.
 #' @param BetaG.cutoff a numeric value (default=0.001) to specify the p-value cutoff for betaG estimation. See details for more information.
+#' @param BetaG.SPA a logical value (default=F) to determine p.value.BetaG is calculated based on SPA (TRUE) or a normal distribution approximation (FALSE).
 #' @return an R matrix with the following columns
 #' \item{MAF}{Minor allele frequencies}
 #' \item{missing.rate}{Missing rate}
-#' \item{p.value.BetaG}{p value of the marginal genotypic effect based on normal distribution approximation}
+#' \item{p.value.BetaG}{p value of the marginal genotypic effect based on normal distribution approximation (BetaG.SPA=F) or saddlepoint approximation (BetaG.SPA=T)}
 #' \item{p.value.spa-xx}{p value of the marginal GxE effect based on saddlepoint approximation. xx is the name of the environmental factor}
 #' \item{p.value.norm-xx}{p value of the marginal GxE effect based on the normal distribution approximation. xx is the name of the environmental factor}
 #' \item{p.value.Firth-xx}{p value of the marginal GxE effect based on the Firth's test. xx is the name of the environmental factor. xx is the name of the environmental factor}
@@ -30,7 +31,7 @@
 #' Here we propose a scalable and accurate method, SPAGE (SaddlePoint Approximation implementation of G×E analysis), that is applicable for genome-wide scale phenome-wide G×E studies (PheWIS).
 #' SPAGE fits a genotype-independent logistic model only once across the whole-genome analysis to reduce computation cost and uses a saddlepoint approximation (SPA) to calibrate the test statistics for analysis of phenotypes with unbalanced case-control ratios.
 #' When genotypic effect is small or moderate (true for most of the variants), the method can control type I error rates well.
-#' We first test for the marginal genotypic effect and if the p value is less than the pre-given argument 'BetaG.cutoff', we will update the test statistic and p value.
+#' We first test for the marginal genotypic effect (normal approximation if Beta.SPA=F and SPA if Beta.SPA=T) and if the p value is less than the pre-given argument 'BetaG.cutoff', we will update the test statistic and p value.
 #' @examples
 #' # Specify all arguments
 #' Data.ls = data.simu.null(N = 1000, nSNP = 10, nCov = 2, maf = 0.3, prev = 0.1)
@@ -41,14 +42,15 @@
 #' @export
 #' @import SPAtest
 SPAGE = function(obj.null,
-                  Envn.mtx,
-                  Geno.mtx,
-                  Cutoff = 2,
-                  impute.method = "none",
-                  missing.cutoff = 0.15,
-                  min.maf = 0,
-                  Firth.cutoff = 0,
-                  BetaG.cutoff = 0.001)
+                 Envn.mtx,
+                 Geno.mtx,
+                 Cutoff = 2,
+                 impute.method = "none",
+                 missing.cutoff = 0.15,
+                 min.maf = 0,
+                 Firth.cutoff = 0,
+                 BetaG.cutoff = 0.001,
+                 BetaG.SPA=F)
 {
   ### check input arguments
   par.list = list(pwd=getwd(),
@@ -62,6 +64,8 @@ SPAGE = function(obj.null,
 
   check.input(obj.null, Envn.mtx, Geno.mtx, par.list)
   print("Warnings: please make sure subjects in Covariates, Genotype and Environmental factor dataset are of the same order. Currently the package do not check order!!!")
+  print(paste0("Sample size is ",nrow(Geno.mtx),"."))
+  print(paste0("Number of variants is ",ncol(Geno.mtx),"."))
 
   ### Prepare the main output dataframe
   n.Envn = ncol(Envn.mtx)
@@ -83,19 +87,18 @@ SPAGE = function(obj.null,
 
     g = Geno.mtx[,i]
     output = SPAGE.one.SNP(g,
-                            obj.null,
-                            Envn.mtx,
-                            Cutoff,
-                            impute.method,
-                            missing.cutoff,
-                            min.maf,
-                            Firth.cutoff,
-                            BetaG.cutoff)
+                           obj.null,
+                           Envn.mtx,
+                           Cutoff,
+                           impute.method,
+                           missing.cutoff,
+                           min.maf,
+                           Firth.cutoff,
+                           BetaG.cutoff,
+                           BetaG.SPA)
 
     output.per.set = rbind(output.per.set, output)
   }
-  print(dim(output.per.set))
-  print(dim(Geno.mtx))
 
   colnames(output.per.set)=header;
   rownames(output.per.set)=colnames(Geno.mtx)
@@ -118,14 +121,15 @@ SPAGE = function(obj.null,
 #' @export
 #' @import SPAtest
 SPAGE.one.SNP = function(g,
-                          obj.null,
-                          Envn.mtx,
-                          Cutoff = 2,
-                          impute.method = "none",
-                          missing.cutoff = 0.15,
-                          min.maf = 0,
-                          Firth.cutoff = 0,
-                          BetaG.cutoff = 0.001)
+                         obj.null,
+                         Envn.mtx,
+                         Cutoff = 2,
+                         impute.method = "none",
+                         missing.cutoff = 0.15,
+                         min.maf = 0,
+                         Firth.cutoff = 0,
+                         BetaG.cutoff = 0.001,
+                         BetaG.SPA = F)
 {
   pval.cutoff.spa = (1-pnorm(Cutoff))*2  # transform standard deviation cutoff to p-value cutoff
 
@@ -135,7 +139,7 @@ SPAGE.one.SNP = function(g,
   missing.rate = ug$missing.rate
   g = ug$g
   pos1 = which(g!=0)
-  if(missing.rate > missing.cutoff | MAF < min.maf){
+  if(missing.rate > missing.cutoff | MAF < min.maf | length(pos1)<=1){
 
     output = c(MAF, missing.rate, NA)
     for(j in 1:ncol(Envn.mtx)){
@@ -148,6 +152,10 @@ SPAGE.one.SNP = function(g,
     var.G = with(obj.null, sum(tilde.g * W * tilde.g))
     stat.G = z.G^2/var.G
     pval.G = pchisq(stat.G, 1, lower.tail = F)
+    if(pval.G < pval.cutoff.spa & BetaG.SPA){
+      NAset = which(g==0)
+      pval.G = get.spa.pvalue(tilde.g,NAset,obj.null$mu,obj.null$y)$pval.spa
+    }
     output = c(MAF, missing.rate, pval.G)
 
     if(pval.G > BetaG.cutoff){
@@ -199,16 +207,19 @@ SPAGE.one.SNP = function(g,
       }
 
       ### Firth test
-      if (pval.spa < Firth.cutoff){
-        X.mtx = as.matrix(cbind(ge, g, obj.null$X))
-        re.firth = SPAtest:::fast.logistf.fit(x = X.mtx,
-                                              y = obj.null$y, firth = TRUE)
-        beta = re.firth$beta[1]
-        var.beta = re.firth$var[1, 1]
-        stat.beta = beta^2/var.beta
-        pval.firth = pchisq(stat.beta, 1, lower.tail = F)
-      }else{
-        pval.firth = pval.spa
+      if(Firth.cutoff==0) pval.firth=NA
+      else{
+        if (pval.spa < Firth.cutoff){
+          X.mtx = as.matrix(cbind(ge, g, obj.null$X))
+          re.firth = SPAtest:::fast.logistf.fit(x = X.mtx,
+                                                y = obj.null$y, firth = TRUE)
+          beta = re.firth$beta[1]
+          var.beta = re.firth$var[1, 1]
+          stat.beta = beta^2/var.beta
+          pval.firth = pchisq(stat.beta, 1, lower.tail = F)
+        }else{
+          pval.firth = pval.spa
+        }
       }
 
       ### summarize all results

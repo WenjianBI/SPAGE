@@ -6,7 +6,7 @@
 \usage{
 SPAGE(obj.null, Envn.mtx, Geno.mtx, Cutoff = 2, impute.method = "none",
   missing.cutoff = 0.15, min.maf = 0, Firth.cutoff = 0,
-  BetaG.cutoff = 0.001)
+  BetaG.cutoff = 0.001, BetaG.SPA = F)
 }
 \arguments{
 \item{obj.null}{output object of function SPAGE_Null_Model.}
@@ -32,12 +32,14 @@ Any SNP with missing rates higher than the cutoff will be excluded from the anal
 Only when the SPA p-value less than the cutoff, Firth's test p-value is calculated.}
 
 \item{BetaG.cutoff}{a numeric value (default=0.001) to specify the p-value cutoff for betaG estimation. See details for more information.}
+
+\item{BetaG.SPA}{a logical value (default=F) to determine p.value.BetaG is calculated based on SPA (TRUE) or a normal distribution approximation (FALSE).}
 }
 \value{
 an R matrix with the following columns
 \item{MAF}{Minor allele frequencies}
 \item{missing.rate}{Missing rate}
-\item{p.value.BetaG}{p value of the marginal genotypic effect based on normal distribution approximation}
+\item{p.value.BetaG}{p value of the marginal genotypic effect based on normal distribution approximation (BetaG.SPA=F) or saddlepoint approximation (BetaG.SPA=T)}
 \item{p.value.spa-xx}{p value of the marginal GxE effect based on saddlepoint approximation. xx is the name of the environmental factor}
 \item{p.value.norm-xx}{p value of the marginal GxE effect based on the normal distribution approximation. xx is the name of the environmental factor}
 \item{p.value.Firth-xx}{p value of the marginal GxE effect based on the Firth's test. xx is the name of the environmental factor. xx is the name of the environmental factor}
@@ -52,7 +54,7 @@ Test for association between marginal GxE multiplicative interaction effect and 
 Here we propose a scalable and accurate method, SPAGE (SaddlePoint Approximation implementation of G×E analysis), that is applicable for genome-wide scale phenome-wide G×E studies (PheWIS).
 SPAGE fits a genotype-independent logistic model only once across the whole-genome analysis to reduce computation cost and uses a saddlepoint approximation (SPA) to calibrate the test statistics for analysis of phenotypes with unbalanced case-control ratios.
 When genotypic effect is small or moderate (true for most of the variants), the method can control type I error rates well.
-We first test for the marginal genotypic effect and if the p value is less than the pre-given argument 'BetaG.cutoff', we will update the test statistic and p value.
+We first test for the marginal genotypic effect (normal approximation if Beta.SPA=F and SPA if Beta.SPA=T) and if the p value is less than the pre-given argument 'BetaG.cutoff', we will update the test statistic and p value.
 }
 \examples{
 # Specify all arguments
