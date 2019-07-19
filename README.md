@@ -1,6 +1,7 @@
 # SPAGE
 SaddlePoint Approximation implementation of GxE analysis
 
+
 ### How to install and load this package
 
 ```{r}      
@@ -9,7 +10,8 @@ install_github("WenjianBi/SPAGE")
 library(SPAGE)
 ?SPAGE  # manual of GxE analyses in SPAGE package
 ```
-### 
+Current version is 0.1.4. For older version and version update information, plesase refer to OldVersions/
+
 Please do not hesitate to contact me (wenjianb@umich.edu) if you met any problem. Suggestions or comments are welcome.
 
 ### Reference
