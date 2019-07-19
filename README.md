@@ -12,4 +12,4 @@ library(SPAGE)
 
 ### Reference
 
-Wenjian Bi, Zhangchen Zhao, Rounak Rey, Lars G. Fritsche, Bhramar Mukherjee, Seunggeun Lee, A Novel Method for Phenome-Wide G×E Analysis and its Application to UK Biobank.
+Wenjian Bi, Zhangchen Zhao, Rounak Rey, Lars G. Fritsche, Bhramar Mukherjee, Seunggeun Lee, A Novel Method for Genome-Wide Scale Phenome-Wide G×E Analysis and its Application to UK Biobank.
