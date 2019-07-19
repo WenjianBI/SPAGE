@@ -6,15 +6,16 @@
 \usage{
 SPAGE(obj.null, Envn.mtx, Geno.mtx, Cutoff = 2, impute.method = "none",
   missing.cutoff = 0.15, min.maf = 0, Firth.cutoff = 0,
-  BetaG.cutoff = 0.001, BetaG.SPA = F)
+  BetaG.cutoff = 0.001, BetaG.SPA = F, G.Model = "Add")
 }
 \arguments{
 \item{obj.null}{output object of function SPAGE_Null_Model.}
 
-\item{Envn.mtx}{a numeric environment matrix with each row as an individual and each column as an environmental factor. Column names of environmental factors are required.}
+\item{Envn.mtx}{a numeric environment matrix with each row as an individual and each column as an environmental factor.
+Column names of environmental factors and row names of subject IDs are required.}
 
 \item{Geno.mtx}{a numeric genotype matrix with each row as an individual and each column as a genetic variant.
-Column names of genetic variations are required. Missng genotype should be coded as NA. Both hard-called and imputed genotype data are supported.}
+Column names of genetic variations and row names of subject IDs are required. Missng genotype should be coded as NA. Both hard-called and imputed genotype data are supported.}
 
 \item{Cutoff}{a numeric value (Default: 2) to specify the standard deviation cutoff to be used.
 If the test statistic lies within the standard deviation cutoff of the mean, its p value is calculated based on normal distribution approximation, otherwise, its p value is calculated based on saddlepoint approximation.}
@@ -33,6 +34,8 @@ Only when the SPA p-value less than the cutoff, Firth's test p-value is calculat
 \item{BetaG.cutoff}{a numeric value (default=0.001) to specify the p-value cutoff for betaG estimation. See details for more information.}
 
 \item{BetaG.SPA}{a logical value (default=F) to determine p.value.BetaG is calculated based on SPA (TRUE) or a normal distribution approximation (FALSE).}
+
+\item{G.Model}{a character string (default="Add") to determine the genetic model. Options include "Add" (default, no change), "Dom" (g>=1: 1; g<1: 0) and "Rec" (g>1: 1; g<=1: 0). Be careful when dosage genotype data is used. We do not check MAF before transformation.}
 }
 \value{
 an R matrix with the following columns
@@ -57,9 +60,13 @@ We first test for the marginal genotypic effect (normal approximation if Beta.SP
 }
 \examples{
 # Specify all arguments
-Data.ls = data.simu.null(N = 1000, nSNP = 10, nCov = 2, maf = 0.3, prev = 0.1)
+N = 1000
+Data.ls = data.simu.null(N = N, nSNP = 10, nCov = 2, maf = 0.3, prev = 0.1)
+subjectID = paste0("ID",1:N)
 Phen.mtx = Data.ls$Phen.mtx
-obj.null = SPAGE_Null_Model(y~Cov1+Cov2, data=Phen.mtx, out_type="D")
+obj.null = SPAGE_Null_Model(y ~ Cov1 + Cov2, subjectID = subjectID, data = Phen.mtx, out_type = "D")
 Envn.mtx = as.matrix(Phen.mtx)[,"Cov1",drop=FALSE]
-SPAGE(obj.null, Envn.mtx, Data.ls$Geno.mtx)
+Geno.mtx = Data.ls$Geno.mtx
+rownames(Geno.mtx) = rownames(Envn.mtx) = subjectID
+SPAGE(obj.null, Envn.mtx, Geno.mtx)
 }

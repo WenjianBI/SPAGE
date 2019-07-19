@@ -2,9 +2,10 @@
 #'
 #' Test for association between marginal GxE multiplicative interaction effect and dichotomous phenotypes.
 #' @param obj.null output object of function SPAGE_Null_Model.
-#' @param Envn.mtx a numeric environment matrix with each row as an individual and each column as an environmental factor. Column names of environmental factors are required.
+#' @param Envn.mtx a numeric environment matrix with each row as an individual and each column as an environmental factor.
+#' Column names of environmental factors and row names of subject IDs are required.
 #' @param Geno.mtx a numeric genotype matrix with each row as an individual and each column as a genetic variant.
-#' Column names of genetic variations are required. Missng genotype should be coded as NA. Both hard-called and imputed genotype data are supported.
+#' Column names of genetic variations and row names of subject IDs are required. Missng genotype should be coded as NA. Both hard-called and imputed genotype data are supported.
 #' @param Cutoff a numeric value (Default: 2) to specify the standard deviation cutoff to be used.
 #' If the test statistic lies within the standard deviation cutoff of the mean, its p value is calculated based on normal distribution approximation, otherwise, its p value is calculated based on saddlepoint approximation.
 #' @param impute.method a character string (default= "none") to specify the method to impute missing genotypes.
@@ -16,6 +17,7 @@
 #' Only when the SPA p-value less than the cutoff, Firth's test p-value is calculated.
 #' @param BetaG.cutoff a numeric value (default=0.001) to specify the p-value cutoff for betaG estimation. See details for more information.
 #' @param BetaG.SPA a logical value (default=F) to determine p.value.BetaG is calculated based on SPA (TRUE) or a normal distribution approximation (FALSE).
+#' @param G.Model a character string (default="Add") to determine the genetic model. Options include "Add" (default, no change), "Dom" (g>=1: 1; g<1: 0) and "Rec" (g>1: 1; g<=1: 0). Be careful when dosage genotype data is used. We do not check MAF before transformation.
 #' @return an R matrix with the following columns
 #' \item{MAF}{Minor allele frequencies}
 #' \item{missing.rate}{Missing rate}
@@ -33,11 +35,15 @@
 #' We first test for the marginal genotypic effect (normal approximation if Beta.SPA=F and SPA if Beta.SPA=T) and if the p value is less than the pre-given argument 'BetaG.cutoff', we will update the test statistic and p value.
 #' @examples
 #' # Specify all arguments
-#' Data.ls = data.simu.null(N = 1000, nSNP = 10, nCov = 2, maf = 0.3, prev = 0.1)
+#' N = 1000
+#' Data.ls = data.simu.null(N = N, nSNP = 10, nCov = 2, maf = 0.3, prev = 0.1)
+#' subjectID = paste0("ID",1:N)
 #' Phen.mtx = Data.ls$Phen.mtx
-#' obj.null = SPAGE_Null_Model(y~Cov1+Cov2, data=Phen.mtx, out_type="D")
+#' obj.null = SPAGE_Null_Model(y ~ Cov1 + Cov2, subjectID = subjectID, data = Phen.mtx, out_type = "D")
 #' Envn.mtx = as.matrix(Phen.mtx)[,"Cov1",drop=FALSE]
-#' SPAGE(obj.null, Envn.mtx, Data.ls$Geno.mtx)
+#' Geno.mtx = Data.ls$Geno.mtx
+#' rownames(Geno.mtx) = rownames(Envn.mtx) = subjectID
+#' SPAGE(obj.null, Envn.mtx, Geno.mtx)
 #' @export
 #' @import SPAtest
 SPAGE = function(obj.null,
@@ -49,7 +55,8 @@ SPAGE = function(obj.null,
                  min.maf = 0,
                  Firth.cutoff = 0,
                  BetaG.cutoff = 0.001,
-                 BetaG.SPA=F)
+                 BetaG.SPA = F,
+                 G.Model = "Add")
 {
   ### check input arguments
   par.list = list(pwd=getwd(),
@@ -62,7 +69,7 @@ SPAGE = function(obj.null,
                   BetaG.cutoff=BetaG.cutoff)
 
   check.input(obj.null, Envn.mtx, Geno.mtx, par.list)
-  print("Warnings: please make sure subjects in Covariates, Genotype and Environmental factor dataset are of the same order. Currently the package do not check order!!!")
+  print("Warnings: please make sure subjects in Covariates, Genotype and Environmental factor dataset are of the same order.")
   print(paste0("Sample size is ",nrow(Geno.mtx),"."))
   print(paste0("Number of variants is ",ncol(Geno.mtx),"."))
 
@@ -94,7 +101,8 @@ SPAGE = function(obj.null,
                            min.maf,
                            Firth.cutoff,
                            BetaG.cutoff,
-                           BetaG.SPA)
+                           BetaG.SPA,
+                           G.Model)
 
     output.per.set = rbind(output.per.set, output)
   }
@@ -108,7 +116,7 @@ SPAGE = function(obj.null,
 #'
 #' One-SNP-version SPAGE function. This function is to facilitate users that prefer reading and analyzing genotype line-by-line.
 #' @param g a numeric genotype vector. Missing genotype should be coded as NA. Both hard-called and imputed genotype data are supported.
-#' @param others the same as function SPAGE.
+#' @param others the same as function SPAGE. NOTE that we do not check subject order in this one-snp-version !!!
 #' @return the same as function SPAGE.
 #' @examples
 #' Data.ls = data.simu.null(N = 1000, nSNP = 10, nCov = 2, maf = 0.3, prev = 0.1)
@@ -128,8 +136,16 @@ SPAGE.one.SNP = function(g,
                          min.maf = 0,
                          Firth.cutoff = 0,
                          BetaG.cutoff = 0.001,
-                         BetaG.SPA = F)
+                         BetaG.SPA = F,
+                         G.Model = "Add")
 {
+  if(G.Model=="Add"){}   # do nothing if G.Model is "Add"
+  else{
+    if(G.Model=="Dom") g=ifelse(g>=1,1,0)
+    if(G.Model=="Rec") g=ifelse(g<=1,0,1)
+    if(G.Model!="Dom" & G.Model!="Rec") stop("The argument of G.Model should be 'Add', 'Dom' or 'Rec'")
+  }
+
   pval.cutoff.spa = (1-pnorm(Cutoff))*2  # transform standard deviation cutoff to p-value cutoff
 
   ### Conduct genotype imputation and calcuate summary statistics for genotype
@@ -237,8 +253,10 @@ check.input = function(obj.null,
   if(class(obj.null)!="SPAGE_Null_Model") stop("Argument 'obj.null' should be output of function SPAGE_Null_Model.")
   if(!is.numeric(Envn.mtx)|!is.matrix(Envn.mtx)) stop("Input 'Envn.mtx' should be a numeric matrix.")
   if(is.null(colnames(Envn.mtx))) stop("Column names of 'Envn.mtx' should be given.")
-  # if(is.null(rownames(Envn.mtx))) stop("Row names of 'Envn.mtx' should be given.")
-  # if(any(rownames(Envn.mtx)!=obj.null$names)) stop("Please check the sample order of 'Envn.mtx' and 'Phen.mtx'.")
+  if(is.null(rownames(Envn.mtx))) stop("Row names of 'Envn.mtx' should be given.")
+  if(is.null(rownames(Geno.mtx))) stop("Row names of 'Geno.mtx' should be given.")
+  if(any(rownames(Envn.mtx)!=rownames(Geno.mtx))) stop("Please check the sample order of 'Envn.mtx' and 'Geno.mtx'.")
+  if(any(rownames(Envn.mtx)!=obj.null$subjectID)) stop("Please check the sample order of 'Envn.mtx' and 'Phen.mtx'.")
   if(!is.null(Geno.mtx)){
     if(!is.numeric(Geno.mtx)|!is.matrix(Geno.mtx)) stop("Input 'Geno.mtx' should be a numeric matrix.")
     if(is.null(colnames(Geno.mtx))) stop("Column names of 'Geno.mtx' should be given.")
@@ -414,6 +432,11 @@ update.mu = function(obj.null, beta.g, tilde.g)
   }
 
   return(mu1)
+}
+
+update.g = function(g, G.Model){
+  if(G.Model=="Dom") return()
+  if(G.Model=="Rec") return(ifelse(g<=1,0,1))
 }
 
 

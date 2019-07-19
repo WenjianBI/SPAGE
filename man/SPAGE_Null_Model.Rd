@@ -4,10 +4,12 @@
 \alias{SPAGE_Null_Model}
 \title{Get parameters and residuals from the NULL model}
 \usage{
-SPAGE_Null_Model(formula, data = NULL, out_type = "D")
+SPAGE_Null_Model(formula, subjectID, data = NULL, out_type = "D")
 }
 \arguments{
 \item{formula}{an object of class “formula”: a symbolic description of the Covariates-Only model to be fitted.}
+
+\item{subjectID}{a character vector to specify the subject IDs. When calculating SPAGE p-value, the subjects IDs will be used to match genotype and environmental exposure information.}
 
 \item{data}{an optional data frame containing the variables in the model (default=NULL). If it is NULL, the variables are taken from 'environment(formula)'}
 

@@ -6,12 +6,13 @@
 \usage{
 SPAGE.one.SNP(g, obj.null, Envn.mtx, Cutoff = 2,
   impute.method = "none", missing.cutoff = 0.15, min.maf = 0,
-  Firth.cutoff = 0, BetaG.cutoff = 0.001, BetaG.SPA = F)
+  Firth.cutoff = 0, BetaG.cutoff = 0.001, BetaG.SPA = F,
+  G.Model = "Add")
 }
 \arguments{
 \item{g}{a numeric genotype vector. Missing genotype should be coded as NA. Both hard-called and imputed genotype data are supported.}
 
-\item{others}{the same as function SPAGE.}
+\item{others}{the same as function SPAGE. NOTE that we do not check subject order in this one-snp-version !!!}
 }
 \value{
 the same as function SPAGE.
