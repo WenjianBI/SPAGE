@@ -12,7 +12,7 @@ library(SPAGE)
 ```
 Current version is 0.1.4. For older version and version update information, plesase refer to OldVersions/
 
-Please do not hesitate to contact me (wenjianb@umich.edu) if you met any problem. Suggestions or comments are welcome.
+Please do not hesitate to contact me (wenjianb@umich.edu) if you meet any problem. Suggestions or comments are also welcome.
 
 ### Reference
 
