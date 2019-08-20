@@ -10,7 +10,7 @@ install_github("WenjianBi/SPAGE")
 library(SPAGE)
 ?SPAGE  # manual of GxE analyses in SPAGE package
 ```
-Current version is 0.1.4. For older version and version update information, plesase refer to OldVersions/
+Current version is 0.1.5. For older version and version update information, plesase refer to OldVersions/
 
 Please do not hesitate to contact me (wenjianb@umich.edu) if you meet any problem. Suggestions or comments are also welcome.
 
