@@ -169,7 +169,8 @@ SPAGE.one.SNP = function(g,
     pval.G = pchisq(stat.G, 1, lower.tail = F)
     if(pval.G < pval.cutoff.spa & BetaG.SPA){
       NAset = which(g==0)
-      pval.G = get.spa.pvalue(tilde.g,NAset,obj.null$mu,obj.null$y)$pval.spa
+      spa.G = try(get.spa.pvalue(tilde.g,NAset,obj.null$mu,obj.null$y), silent = T)
+      if(class(pval.G)!="try-error") pval.G = spa.G$pval.spa
     }
     output = c(MAF, missing.rate, pval.G)
 
@@ -214,8 +215,11 @@ SPAGE.one.SNP = function(g,
       if(pval.norm < pval.cutoff.spa){
         G1 = tilde.ge-(cov.G.GE/var.G)*tilde.g
         NAset = which(g==0)
-        spa.res = get.spa.pvalue(G1,NAset,mu,obj.null$y)        # a character of "SPA" or "fastSPA"
-        pval.spa = spa.res$pval.spa
+        spa.res = try(get.spa.pvalue(G1,NAset,mu,obj.null$y),silent = T)        # a character of "SPA" or "fastSPA"
+        if(class(spa.res)=="try-error")
+          pval.spa=NA
+        else
+          pval.spa = spa.res$pval.spa
         # is.converge.spa = spa.res$is.converge.spa
       }else{
         pval.spa = pval.norm
