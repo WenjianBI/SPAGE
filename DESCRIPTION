@@ -1,8 +1,8 @@
 Package: SPAGE
 Type: Package
 Title: SaddlePoint Approximation implementation of GxE analysis
-Version: 0.1.4
-Published: 2019-07-19
+Version: 0.1.5
+Published: 2019-08-20
 Author: Wenjian Bi; Shawn (Seunggeun) Lee
 Maintainer: Wenjian Bi <wenjianb@umich.edu>
 Description: A scalable and accurate method, SPAGE (SaddlePoint Approximation implementation of GxE analysis), that is applicable for genome-wide scale phenome-wide GxE studies (PheWIS). SPAGE fits a genotype-independent logistic model only once across the whole-genome analysis to reduce computation cost and uses a saddlepoint approximation (SPA) to calibrate the test statistics for analysis of phenotypes with unbalanced case-control ratios.
