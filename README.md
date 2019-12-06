@@ -16,5 +16,5 @@ Please do not hesitate to contact me (wenjianb@umich.edu) if you meet any proble
 
 ### Reference
 
-Wenjian Bi, Zhangchen Zhao, Rounak Rey, Lars G. Fritsche, Bhramar Mukherjee, Seunggeun Lee, A Novel Method for Genome-Wide Scale Phenome-Wide G×E Analysis and its Application to UK Biobank. American Journal of Human Genetic (2019), 105, 1182-1192.
+Wenjian Bi, Zhangchen Zhao, Rounak Rey, Lars G. Fritsche, Bhramar Mukherjee, Seunggeun Lee, A Novel Method for Genome-Wide Scale Phenome-Wide G×E Analysis and its Application to UK Biobank. American Journal of Human Genetics (2019), 105, 1182-1192.
 
