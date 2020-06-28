@@ -280,9 +280,9 @@ make.header = function(names.Envn)
   header2 = c("p.value.spa", "p.value.norm", "p.value.Firth",       # 3
               "Stat","Var","z")                                     # 3
   for(envn in names.Envn){
-    header = c(header1, paste0(header2,"-",envn))
+    header1 = c(header1, paste0(header2,"-",envn))
   }
-  header = matrix(header,nrow=1)
+  header = matrix(header1,nrow=1)
   return(header)
 }
 
