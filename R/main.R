@@ -68,8 +68,8 @@ SPAGE = function(obj.null,
                   Firth.cutoff=Firth.cutoff,
                   BetaG.cutoff=BetaG.cutoff)
 
-  check.input(obj.null, Envn.mtx, Geno.mtx, par.list)
   print("Warnings: please make sure subjects in Covariates, Genotype and Environmental factor dataset are of the same order.")
+  check.input(obj.null, Envn.mtx, Geno.mtx, par.list)
   print(paste0("Sample size is ",nrow(Geno.mtx),"."))
   print(paste0("Number of variants is ",ncol(Geno.mtx),"."))
 
