@@ -185,6 +185,15 @@ SPAGE.one.SNP = function(g,
       beta.g = try(score.beta.g(z.G, var.G, g, obj.null), silent = T)
       if(class(beta.g)=="try-error") beta.g = 0
       mu = update.mu(obj.null, beta.g, g)
+      
+      ## added on 10-30-2020
+      if(is.na(mu)){
+        for(j in 1:ncol(Envn.mtx)){
+          output = c(output, rep(NA,6))
+        }
+        return(output)
+      }
+        
       W = mu * (1-mu)
       var.G = sum(tilde.g * W * tilde.g)
       mn.G = sum(tilde.g * (mu-obj.null$mu))
@@ -288,24 +297,24 @@ make.header = function(names.Envn)
 
 impute.geno = function(g, impute.method)
 {
-  if(impute.method=="none"){
-    N.na=0;
+  if(impute.method == "none"){
+    N.na = 0;
   }else{
     which.na = which(is.na(g))
     N.na = length(which.na)
   }
 
-  if(N.na==0) MAF=mean(g)/2
+  if(N.na == 0) MAF = mean(g)/2
   else MAF = mean(g[-which.na])/2
 
   if(MAF > 0.5){
-    g = 2-g;
-    MAF = 1-MAF
+    g = 2 - g;
+    MAF = 1 - MAF
   }
   missing.rate = N.na/length(g)
 
-  if(N.na>0){
-    if(impute.method=="fixed") g[which.na] = MAF
+  if(N.na > 0){
+    if(impute.method=="fixed") g[which.na] = 2*MAF
     if(impute.method=="random") g[which.na] = rbinom(N.na, 2, MAF)
     if(impute.method=="bestguess") g[which.na] = round(2*MAF)
   }
@@ -353,7 +362,7 @@ get.spa.pvalue = function(G1,         # GxE interaction term
   return(res)
 }
 
-####### This is from function ScoreTest_SPA_wOR() from Rounak
+####### The below is from function ScoreTest_SPA_wOR() from Rounak
 
 score.beta.g = function(z.G,
                         var.G,
@@ -406,13 +415,13 @@ score_solve<-function(y, g1, qadj)
   return(gammanew[2])
 }
 
-update.mu = function(obj.null, beta.g, tilde.g)
+update.mu = function(obj.null, beta.g, g)
 {
   mu0 = obj.null$mu
 
   X = obj.null$X
 
-  eta1 = with(obj.null, c(X %*% coef + tilde.g * beta.g))
+  eta1 = with(obj.null, c(X %*% coef + g * beta.g))
   exp.eta1 = exp(eta1)
   mu1 = exp.eta1/(1+exp.eta1)
 
@@ -428,6 +437,11 @@ update.mu = function(obj.null, beta.g, tilde.g)
     eta1 = eta1+d.eta
     exp.eta1 = exp(eta1)
     mu1 = exp.eta1/(1+exp.eta1)
+    
+    # added on 10-30-2020
+    if(any(is.na(d.eta)))
+      return(NA)
+    
     if(mean(abs(d.eta)) < 10^-6 || rep>100)	break
 
     #### uncomment the following line for original NR algorithm
@@ -438,9 +452,5 @@ update.mu = function(obj.null, beta.g, tilde.g)
   return(mu1)
 }
 
-update.g = function(g, G.Model){
-  if(G.Model=="Dom") return()
-  if(G.Model=="Rec") return(ifelse(g<=1,0,1))
-}
 
 
